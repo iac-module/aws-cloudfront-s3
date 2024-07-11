@@ -1,8 +1,9 @@
 module "s3_bucket" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-s3-bucket.git//.?ref=cd61253a03de4f99c77a8e45146bd65a55ab103e" #v4.1.1
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-s3-bucket.git//.?ref=8a0b697adfbc673e6135c70246cff7f8052ad95a" #v4.1.2
 
-  bucket        = var.s3_bucket.bucket
-  force_destroy = true
+  bucket                                = var.s3_bucket.bucket
+  attach_deny_insecure_transport_policy = true
+  force_destroy                         = true
 }
 
 module "cloudfront" {
