@@ -24,7 +24,7 @@ This is a compiled terraform module capable of creating:
 |------|--------|---------|
 | <a name="module_cloudfront"></a> [cloudfront](#module\_cloudfront) | git::https://github.com/terraform-aws-modules/terraform-aws-cloudfront.git//. | a0f0506106a4c8815c1c32596e327763acbef2c2 |
 | <a name="module_records"></a> [records](#module\_records) | git::https://github.com/terraform-aws-modules/terraform-aws-route53.git//modules/records | 385af6e72673f90aa8c835f820067553f905bd17 |
-| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | git::https://github.com/terraform-aws-modules/terraform-aws-s3-bucket.git//. | cd61253a03de4f99c77a8e45146bd65a55ab103e |
+| <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | git::https://github.com/terraform-aws-modules/terraform-aws-s3-bucket.git//. | 8a0b697adfbc673e6135c70246cff7f8052ad95a |
 
 ## Resources
 
