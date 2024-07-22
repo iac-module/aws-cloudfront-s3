@@ -4,7 +4,7 @@ include {
 iam_role = local.account_vars.iam_role
 
 terraform {
-  source = "git::https://github.com/iac-module/aws-cloudfront-s3.git//?ref=v1.0.0"
+  source = "git::https://github.com/iac-module/aws-cloudfront-s3.git//?ref=v1.1.0"
 }
 
 locals {
@@ -24,25 +24,23 @@ dependency "route53_zone" {
 
 inputs = {
   cloudfront = {
-    sub_domain          = "app"
-    aliases             = ["app.${local.account_vars.locals.main_domain}"]
-    comment             = "Fronted CloudFront"
-    enabled             = true
-    staging             = false # If you want to create a staging distribution, set this to true
-    http_version        = "http2and3"
-    is_ipv6_enabled     = true
-    price_class         = "PriceClass_All"
-    retain_on_delete    = false
-    wait_for_deployment = false
-    default_root_object = "index.html"
-
+    sub_domain                     = "content"
+    aliases                        = ["content.${local.account_vars.locals.main_domain}"]
+    comment                        = "Content CloudFront"
+    enabled                        = true
+    staging                        = false # If you want to create a staging distribution, set this to true
+    http_version                   = "http2and3"
+    is_ipv6_enabled                = true
+    price_class                    = "PriceClass_All"
+    retain_on_delete               = false
+    wait_for_deployment            = false
+    default_root_object            = "index.html"
     create_monitoring_subscription = true
     create_origin_access_identity  = true
     origin_access_identities = {
       s3_bucket_one = " CloudFront S3 bucket for ${local.name}"
     }
     create_origin_access_control = true
-
     origin_access_control = {
       "s3_${local.bucket_name}" = {
         description      = "CloudFront access to S3 ${local.name}"
@@ -62,7 +60,32 @@ inputs = {
       cache_policy_name            = "Managed-CachingOptimized"
       origin_request_policy_name   = "Managed-UserAgentRefererHeaders"
       response_headers_policy_name = "Managed-SimpleCORS"
+      trusted_key_groups           = []
     }
+    ordered_cache_behavior = [{
+      path_pattern                 = "/private/*"
+      target_origin_id             = "s3_${local.bucket_name}"
+      viewer_protocol_policy       = "redirect-to-https"
+      allowed_methods              = ["GET", "HEAD"]
+      cached_methods               = ["GET", "HEAD"]
+      use_forwarded_values         = false
+      cache_policy_name            = "Managed-CachingOptimized"
+      origin_request_policy_name   = "Managed-UserAgentRefererHeaders"
+      response_headers_policy_name = "Managed-SimpleCORS"
+    },
+      {
+        path_pattern                 = "/public/*"
+        target_origin_id             = "s3_${local.bucket_name}"
+        viewer_protocol_policy       = "redirect-to-https"
+        trusted_key_groups           = []
+        allowed_methods              = ["GET", "HEAD"]
+        cached_methods               = ["GET", "HEAD"]
+        use_forwarded_values         = false
+        cache_policy_name            = "Managed-CachingOptimized"
+        origin_request_policy_name   = "Managed-UserAgentRefererHeaders"
+        response_headers_policy_name = "Managed-SimpleCORS"
+      }]
+
     viewer_certificate = {
       acm_certificate_arn      = dependency.acm.outputs.acm_certificate_arn
       ssl_support_method       = "sni-only"
@@ -74,6 +97,22 @@ inputs = {
       response_code         = 200
       response_page_path    = "/index.html"
     }]
+  }
+
+  cloudfront_keys = {
+    name = local.name
+    secrets = {
+      dev-0001-content = {
+        #checkov:skip=CKV_SECRET_6:It's public key
+        secret_manager_name = "ENV/dev-content"
+        secret_manager_key  = "dev-0001-content.pub"
+      }
+      dev-0001-tf = {
+        #checkov:skip=CKV_SECRET_6:It's public key
+        secret_manager_name = "ENV/dev-content"
+        secret_manager_key  = "dev-0001-tf.pub"
+      }
+    }
   }
   s3_bucket = {
     bucket = local.bucket_name
