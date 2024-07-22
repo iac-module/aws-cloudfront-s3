@@ -51,6 +51,19 @@ variable "cloudfront" {
   })
 }
 
+variable "cloudfront_keys" {
+  description = "The Cloudfront keys"
+  type = object({
+    name = optional(string, "default")
+    secrets = optional(map(object({
+      secret_manager_name = string
+      secret_manager_key  = string
+      })), {}
+    )
+  })
+  default = {}
+}
+
 variable "s3_bucket" {
   description = "The bucket for hosting static"
   type = object({

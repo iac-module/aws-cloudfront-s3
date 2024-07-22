@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2024-07-19
+### Fix
+- fix for s3 policy
+### Added
+- cloudfront_keys and integrate it to ordered_cache_behavior
+
 ## [1.0.1] - 2024-07-11
 ### Added
 - Force use attach_deny_insecure_transport_policy for s3
