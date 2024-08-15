@@ -1,56 +1,29 @@
-# bucket
-output "s3_bucket_id" {
-  description = "The name of the bucket."
-  value       = try(module.s3_bucket.s3_bucket_id, "")
-}
-
-output "s3_bucket_arn" {
+output "s3_buckets" {
   description = "The ARN of the bucket. Will be of format arn:aws:s3:::bucketname."
-  value       = try(module.s3_bucket.s3_bucket_arn, "")
+  value = try({
+    for k, bd in var.s3_buckets : var.s3_buckets[k].bucket => {
+      s3_bucket_id                            = module.s3_buckets[k].s3_bucket_id
+      s3_bucket_arn                           = module.s3_buckets[k].s3_bucket_arn
+      s3_bucket_bucket_domain_name            = module.s3_buckets[k].s3_bucket_bucket_domain_name
+      s3_bucket_bucket_regional_domain_name   = module.s3_buckets[k].s3_bucket_bucket_regional_domain_name
+      s3_bucket_hosted_zone_id                = module.s3_buckets[k].s3_bucket_hosted_zone_id
+      s3_bucket_lifecycle_configuration_rules = module.s3_buckets[k].s3_bucket_lifecycle_configuration_rules
+      s3_bucket_policy                        = module.s3_buckets[k].s3_bucket_policy
+      s3_bucket_region                        = module.s3_buckets[k].s3_bucket_region
+      s3_bucket_website_endpoint              = module.s3_buckets[k].s3_bucket_website_endpoint
+      s3_bucket_website_domain                = module.s3_buckets[k].s3_bucket_website_domain
+    }
+  }, "")
 }
 
-output "s3_bucket_bucket_domain_name" {
-  description = "The bucket domain name. Will be of format bucketname.s3.amazonaws.com."
-  value       = try(module.s3_bucket.s3_bucket_bucket_domain_name, "")
-}
-
-output "s3_bucket_bucket_regional_domain_name" {
-  description = "The bucket region-specific domain name. The bucket domain name including the region name, please refer here for format. Note: The AWS CloudFront allows specifying S3 region-specific endpoint when creating S3 origin, it will prevent redirect issues from CloudFront to S3 Origin URL."
-  value       = try(module.s3_bucket.s3_bucket_bucket_regional_domain_name, "")
-}
-
-output "s3_bucket_hosted_zone_id" {
-  description = "The Route 53 Hosted Zone ID for this bucket's region."
-  value       = try(module.s3_bucket.s3_bucket_hosted_zone_id, "")
-}
-
-output "s3_bucket_lifecycle_configuration_rules" {
-  description = "The lifecycle rules of the bucket, if the bucket is configured with lifecycle rules. If not, this will be an empty string."
-  value       = try(module.s3_bucket.s3_bucket_lifecycle_configuration_rules, "")
-}
-
-output "s3_bucket_policy" {
-  description = "The policy of the bucket, if the bucket is configured with a policy. If not, this will be an empty string."
-  value       = try(module.s3_bucket.s3_bucket_policy, "")
-}
-
-output "s3_bucket_region" {
-  description = "The AWS region this bucket resides in."
-  value       = try(module.s3_bucket.s3_bucket_region, "")
-}
-
-output "s3_bucket_website_endpoint" {
-  description = "The website endpoint, if the bucket is configured with a website. If not, this will be an empty string."
-  value       = try(module.s3_bucket.s3_bucket_website_endpoint, "")
-}
-
-output "s3_bucket_website_domain" {
-  description = "The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string. This is used to create Route 53 alias records."
-  value       = try(module.s3_bucket.s3_bucket_website_domain, "")
+output "s3_buckets_arns" {
+  description = "The arns of s3 buckets."
+  value = [
+    for bd in module.s3_buckets : bd.s3_bucket_arn
+  ]
 }
 
 #cloudfront
-
 output "cloudfront_distribution_id" {
   description = "The identifier for the distribution."
   value       = try(module.cloudfront.cloudfront_distribution_id, "")
