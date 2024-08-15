@@ -1,19 +1,18 @@
-data "aws_iam_policy_document" "s3_policy" {
+data "aws_iam_policy_document" "s3_p" {
+  for_each = var.s3_buckets
   # Origin Access Identities
   statement {
     actions   = ["s3:GetObject"]
-    resources = ["${module.s3_bucket.s3_bucket_arn}${var.s3_bucket.suffix_for_assets}"]
-
+    resources = ["arn:aws:s3:::${var.s3_buckets[each.key].bucket}${var.s3_buckets[each.key].suffix_for_assets}"]
     principals {
       type        = "AWS"
       identifiers = module.cloudfront.cloudfront_origin_access_identity_iam_arns
     }
   }
-
   # Origin Access Controls
   statement {
     actions   = ["s3:GetObject"]
-    resources = ["${module.s3_bucket.s3_bucket_arn}${var.s3_bucket.suffix_for_assets}"]
+    resources = ["arn:aws:s3:::${var.s3_buckets[each.key].bucket}${var.s3_buckets[each.key].suffix_for_assets}"]
 
     principals {
       type        = "Service"
@@ -25,13 +24,12 @@ data "aws_iam_policy_document" "s3_policy" {
       values   = [module.cloudfront.cloudfront_distribution_arn]
     }
   }
-
-  # denyInsecureTransport
+  #   denyInsecureTransport
   statement {
     sid       = "ForceSSLOnlyAccess"
     effect    = "Deny"
     actions   = ["*"]
-    resources = ["${module.s3_bucket.s3_bucket_arn}${var.s3_bucket.suffix_for_assets}"]
+    resources = ["arn:aws:s3:::${var.s3_buckets[each.key].bucket}${var.s3_buckets[each.key].suffix_for_assets}"]
 
     principals {
       type        = "*"
